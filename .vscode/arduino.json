@@ -1,4 +1,5 @@
 {
     "board": "arduino:avr:uno",
-    "sketch": "Safety_Screen.ino"
+    "sketch": "Safety_Screen.ino",
+    "port": "/dev/ttyACM0"
 }
