@@ -9,8 +9,11 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);  // Create LiquidCrystal instance
 
 // Initialize the RFID reader
 #define RST_PIN 9
-#define SS_PIN 10
-MFRC522 mfrc522(SS_PIN, RST_PIN);  // Create MFRC522 instance
+#define OUTSIDE_PIN 10
+#define INSIDE_PIN 8
+// Create MFRC522 instances
+MFRC522 mfrc522_outside(OUTSIDE_PIN, RST_PIN);
+MFRC522 mfrc522_inside(INSIDE_PIN, RST_PIN);
 
 
 unsigned int people_count = 0;
@@ -29,8 +32,10 @@ void setup() {
     SPI.begin();      // Initiate  SPI bus
     
     // Initialize MFRC522
-    mfrc522.PCD_Init();
-    mfrc522.PCD_DumpVersionToSerial();  // Show details of PCD - MFRC522 Card Reader details
+    mfrc522_outside.PCD_Init();
+    mfrc522_inside.PCD_Init();
+    mfrc522_outside.PCD_DumpVersionToSerial();  // Show details of PCD - MFRC522 Card Reader details
+    mfrc522_inside.PCD_DumpVersionToSerial();  // Show details of PCD - MFRC522 Card Reader details
 
     // Set up the LCD display layout
     // These are messages that only need to be printed once
@@ -41,6 +46,7 @@ void setup() {
     lcd.setCursor(7, 1);
     lcd.print("Air: ");
 }
+
 
 void loop() {
 
@@ -66,35 +72,28 @@ void loop() {
     lcd.print("    ");  // to clear the previous value
     lcd.setCursor(14, 0);
     lcd.print(people_count);
+    lcd.print("   ");    // to clear the previous value
     
 
-    // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
-    if (!mfrc522.PICC_IsNewCardPresent()) return;
-  
-    // Select one of the cards
-    if (!mfrc522.PICC_ReadCardSerial()) return;
-    
-    //Show UID on serial monitor
-    Serial.print("UID tag :");
-    String content= "";
-    byte letter;
-    for (byte i = 0; i < mfrc522.uid.size; i++) {
-       Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
-       Serial.print(mfrc522.uid.uidByte[i], HEX);
-       content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
-       content.concat(String(mfrc522.uid.uidByte[i], HEX));
-    }
-    
-    Serial.println();
-    Serial.print("Message : ");
-    content.toUpperCase();
-    if (content.substring(1) == "37 16 60 C8" || content.substring(1) == "53 2F DB 1A") { //change here the UID of the card/cards that you want to give access
-      Serial.println("Authorized access");
-      people_count++;
-      //delay(3000);
+    if (mfrc522_outside.PICC_IsNewCardPresent()) {
+        // Found chip/card on the outside reader
+
+        // Select one of the cards
+        if (!mfrc522_outside.PICC_ReadCardSerial()) return;
+
+        people_count++;
+        
+    }else if(mfrc522_inside.PICC_IsNewCardPresent()) {
+        // Found chip/card on the outside reader
+
+        // Select one of the cards
+        if (!mfrc522_inside.PICC_ReadCardSerial()) return;
+
+        if(people_count >= 1) people_count--;
+        
     }else {
-      Serial.println(" Access denied");
-      //delay(3000);
+        // No chip/card found on either of the readers
+        return;
     }
     
     delay(500);                         // wait 200ms for next reading
