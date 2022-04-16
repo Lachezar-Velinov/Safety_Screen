@@ -1,6 +1,8 @@
 #include <LiquidCrystal.h>
 #include <SPI.h>
 #include <MFRC522.h>
+#include <Wire.h>
+#include <Adafruit_BMP280.h>
 
 
 // Initialize the LCD display
@@ -11,9 +13,13 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);  // Create LiquidCrystal instance
 #define RST_PIN 9
 #define OUTSIDE_PIN 10
 #define INSIDE_PIN 8
+
 // Create MFRC522 instances
 MFRC522 mfrc522_outside(OUTSIDE_PIN, RST_PIN);
 MFRC522 mfrc522_inside(INSIDE_PIN, RST_PIN);
+
+// Create Adafruit_BMP280 instance
+Adafruit_BMP280 bmp;
 
 
 unsigned int people_count = 0;
@@ -21,7 +27,8 @@ unsigned int people_count = 0;
 
 void setup() {
 
-    analogReference(INTERNAL);
+    lcd.setCursor(0, 0);
+    lcd.print("13:37");
     pinMode(A0, INPUT);
     pinMode(A1, INPUT);
     Serial.begin(9600);
@@ -37,6 +44,14 @@ void setup() {
     mfrc522_outside.PCD_DumpVersionToSerial();  // Show details of PCD - MFRC522 Card Reader details
     mfrc522_inside.PCD_DumpVersionToSerial();  // Show details of PCD - MFRC522 Card Reader details
 
+    // Initialize BMP280
+    bmp.begin(0x76);
+    bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
+                    Adafruit_BMP280::SAMPLING_X2,     /* Temp. oversampling */
+                    Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
+                    Adafruit_BMP280::FILTER_X16,      /* Filtering. */
+                    Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
+
     // Set up the LCD display layout
     // These are messages that only need to be printed once
     lcd.setCursor(6, 0);
@@ -50,23 +65,14 @@ void setup() {
 
 void loop() {
 
-    float total = 0; // reset total
-    for(int i = 0; i < 64; i++) { // 64(max) analogue readings for averaging
-      total += analogRead(A0); // add each value
-    }
-    float tempC = total * 0.001632; // Calibrate by changing the last digit(s)
-    
     //double temp_raw = analogRead(A0);
     double air_quality_raw = analogRead(A1);
-    //double mv = ( temp_raw/1024.0)*5000;
-    //int cel = mv/10;
-    // float farh = (cel*9)/5 + 32;
     int air = air_quality_raw;
 
     lcd.setCursor(0, 0);
     lcd.print("13:37");   // We don't have a clock module yet so just print an example time
     lcd.setCursor(0, 1);
-    lcd.print(tempC, 1);
+    lcd.print(bmp.readTemperature(), 1);
     lcd.setCursor(12, 1);
     lcd.print(air);
     lcd.print("    ");  // to clear the previous value
