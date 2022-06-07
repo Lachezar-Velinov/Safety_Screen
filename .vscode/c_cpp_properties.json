@@ -2,19 +2,6 @@
     "version": 4,
     "configurations": [
         {
-            "name": "Linux",
-            "compilerPath": "/usr/bin/gcc",
-            "compilerArgs": [],
-            "intelliSenseMode": "linux-gcc-x64",
-            "includePath": [
-                "${workspaceFolder}/**"
-            ],
-            "forcedInclude": [],
-            "cStandard": "gnu17",
-            "cppStandard": "gnu++17",
-            "defines": []
-        },
-        {
             "name": "Arduino",
             "compilerPath": "/home/yassen/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin/avr-g++",
             "compilerArgs": [
@@ -30,10 +17,10 @@
             "includePath": [
                 "/home/yassen/.arduino15/packages/arduino/hardware/avr/1.8.5/cores/arduino",
                 "/home/yassen/.arduino15/packages/arduino/hardware/avr/1.8.5/variants/standard",
-                "/home/yassen/Arduino/libraries/LiquidCrystal/src",
                 "/home/yassen/.arduino15/packages/arduino/hardware/avr/1.8.5/libraries/SPI/src",
-                "/home/yassen/Arduino/libraries/MFRC522/src",
                 "/home/yassen/.arduino15/packages/arduino/hardware/avr/1.8.5/libraries/Wire/src",
+                "/home/yassen/Arduino/libraries/LiquidCrystal/src",
+                "/home/yassen/Arduino/libraries/MFRC522/src",
                 "/home/yassen/Arduino/libraries/Adafruit_BMP280_Library",
                 "/home/yassen/Arduino/libraries/Adafruit_Unified_Sensor",
                 "/home/yassen/Arduino/libraries/Adafruit_BusIO",
